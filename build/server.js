@@ -43,12 +43,12 @@ var __async = (__this, __arguments, generator) => {
 };
 
 // src/server.ts
-var import_express4 = __toESM(require("express"));
+var import_express5 = __toESM(require("express"));
 var import_config = require("dotenv/config");
 var import_cors = __toESM(require("cors"));
 
 // src/routes.ts
-var import_express3 = require("express");
+var import_express4 = require("express");
 
 // src/routes/user/routes.ts
 var import_express = require("express");
@@ -594,18 +594,108 @@ endpoint2.delete(
 );
 var routes_default2 = endpoint2;
 
+// src/routes/refresh-token/routes.ts
+var import_express3 = require("express");
+
+// src/repositories/prisma/refresh-token.ts
+var PrismaRefreshTokenRepository = class {
+  findById(refresh_token) {
+    return __async(this, null, function* () {
+      const refreshToken = yield prismaClient.refreshToken.findUnique({
+        where: { id: refresh_token }
+      });
+      return refreshToken;
+    });
+  }
+  deleteMany(user_id) {
+    return __async(this, null, function* () {
+      yield prismaClient.refreshToken.deleteMany({ where: { user_id } });
+    });
+  }
+};
+
+// src/services/refresh-token.ts
+var import_dayjs2 = __toESM(require("dayjs"));
+var import_jsonwebtoken3 = require("jsonwebtoken");
+var import_dotenv2 = require("dotenv");
+(0, import_dotenv2.config)();
+var RefreshTokenService = class {
+  constructor(refreshTokenRepository2) {
+    this.refreshTokenRepository = refreshTokenRepository2;
+  }
+  execute(refresh_token) {
+    return __async(this, null, function* () {
+      const secret = process.env.SECRET;
+      const refreshTokenCreated = yield this.refreshTokenRepository.findById(
+        refresh_token
+      );
+      if (!refreshTokenCreated) {
+        throw new UnauthorizedError("token inv\xE1lido.");
+      }
+      const token = (0, import_jsonwebtoken3.sign)({ id: refreshTokenCreated.user_id }, secret, {
+        expiresIn: "1h"
+      });
+      const isExpired = (0, import_dayjs2.default)().isAfter(import_dayjs2.default.unix(refreshTokenCreated.expiresIn));
+      if (isExpired) {
+        yield this.refreshTokenRepository.deleteMany(refreshTokenCreated.user_id);
+        const refreshToken = (0, import_jsonwebtoken3.sign)({ id: refreshTokenCreated.user_id }, secret, {
+          expiresIn: "1h"
+        });
+        return {
+          token,
+          refreshToken
+        };
+      }
+      return { token };
+    });
+  }
+};
+
+// src/controllers/refresh-token/refresh-token.ts
+var RefreshTokenController = class {
+  constructor(refreshTokenUseCase) {
+    this.refreshTokenUseCase = refreshTokenUseCase;
+  }
+  execute(request, response) {
+    return __async(this, null, function* () {
+      const { id } = request.params;
+      try {
+        const { refreshToken, token } = yield this.refreshTokenUseCase.execute(id);
+        return response.status(200).send({ message: "Ok", code: 200, refreshToken, token });
+      } catch (error) {
+        if (error instanceof UnauthorizedError) {
+          return response.status(403).send({ message: error.message, code: 403 });
+        }
+      }
+    });
+  }
+};
+
+// src/controllers/refresh-token/index.ts
+var refreshTokenRepository = new PrismaRefreshTokenRepository();
+var refreshTokenService = new RefreshTokenService(refreshTokenRepository);
+var refreshTokeController = new RefreshTokenController(refreshTokenService);
+
+// src/routes/refresh-token/routes.ts
+var endpoint3 = (0, import_express3.Router)();
+endpoint3.get("/refresh-token/:id", (request, response) => {
+  return refreshTokeController.execute(request, response);
+});
+var routes_default3 = endpoint3;
+
 // src/routes.ts
-var routes = (0, import_express3.Router)();
+var routes = (0, import_express4.Router)();
 routes.use("/user", routes_default);
 routes.use("/expense", routes_default2);
-var routes_default3 = routes;
+routes.use("", routes_default3);
+var routes_default4 = routes;
 
 // src/server.ts
-var app = (0, import_express4.default)();
+var app = (0, import_express5.default)();
 var _a;
 var PORT = (_a = process.env.PORT) != null ? _a : 3232;
-app.use(import_express4.default.json());
-app.use(import_express4.default.urlencoded({ extended: true }));
+app.use(import_express5.default.json());
+app.use(import_express5.default.urlencoded({ extended: true }));
 app.use((request, response, next) => {
   response.header("Access-Control-Allow-Origin", "*");
   response.header("Access-Control-Allow-Headers", "*");
@@ -613,7 +703,7 @@ app.use((request, response, next) => {
   app.use((0, import_cors.default)());
   next();
 });
-app.use(routes_default3);
+app.use(routes_default4);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} `);
 });
