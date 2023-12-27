@@ -690,6 +690,20 @@ routes.use("/expense", routes_default2);
 routes.use("", routes_default3);
 var routes_default4 = routes;
 
+// src/jobs/keep-alive.ts
+var import_cron = require("cron");
+var keepAlive = () => {
+  new import_cron.CronJob(
+    "*/10 * * * *",
+    () => __async(void 0, null, function* () {
+      console.log("Reconnected");
+    }),
+    null,
+    true,
+    "America/Sao_Paulo"
+  ).start();
+};
+
 // src/server.ts
 var app = (0, import_express5.default)();
 var _a;
@@ -704,6 +718,7 @@ app.use((request, response, next) => {
   next();
 });
 app.use(routes_default4);
+keepAlive();
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} `);
 });
