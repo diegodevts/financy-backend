@@ -64,7 +64,7 @@ export class UserService {
     }
 
     const token = sign({ id: hasUser.id }, secret, {
-      expiresIn: '1m'
+      expiresIn: '1h'
     })
 
     return {
