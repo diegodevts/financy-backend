@@ -5,8 +5,11 @@ import { refreshTokeController } from '../../controllers/refresh-token'
 
 const endpoint = Router()
 
-endpoint.get('/refresh-token/:id', (request: Request, response: Response) => {
-  return refreshTokeController.execute(request, response)
-})
+endpoint.get(
+  '/refresh-token/:old_token',
+  (request: Request, response: Response) => {
+    return refreshTokeController.execute(request, response)
+  }
+)
 
 export default endpoint

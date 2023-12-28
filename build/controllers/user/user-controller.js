@@ -117,14 +117,10 @@ var UserController = class {
     return __async(this, null, function* () {
       try {
         const { email, password } = request.body;
-        const { token, user, refreshTokenId } = yield this.service.login(
-          email,
-          password
-        );
+        const { token, user } = yield this.service.login(email, password);
         return response.send({
           message: `Ol\xE1 novamente, ${user}!`,
-          token,
-          refreshTokenId
+          token
         });
       } catch (error) {
         if (error instanceof NotFoundError) {

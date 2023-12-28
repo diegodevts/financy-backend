@@ -1,9 +1,7 @@
 "use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -17,14 +15,6 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var __async = (__this, __arguments, generator) => {
   return new Promise((resolve, reject) => {
@@ -58,38 +48,9 @@ var import_express4 = require("express");
 // src/routes/user/routes.ts
 var import_express = require("express");
 
-// src/providers/generate-refresh-token.ts
-var import_dayjs = __toESM(require("dayjs"));
-var import_dotenv = require("dotenv");
-
 // src/database/prisma-client.ts
 var import_client = require("@prisma/client");
 var prismaClient = new import_client.PrismaClient();
-
-// src/providers/generate-refresh-token.ts
-(0, import_dotenv.config)();
-var GenerateRefreshTokenProvider = class {
-  constructor() {
-  }
-  execute(user_id) {
-    return __async(this, null, function* () {
-      const expiresIn = (0, import_dayjs.default)().add(1, "hour").unix();
-      const hasRefreshToken = yield prismaClient.refreshToken.findFirst({
-        where: { user_id }
-      });
-      if (hasRefreshToken) {
-        yield prismaClient.refreshToken.deleteMany({ where: { user_id } });
-      }
-      const refreshToken = yield prismaClient.refreshToken.create({
-        data: {
-          user_id,
-          expiresIn
-        }
-      });
-      return refreshToken;
-    });
-  }
-};
 
 // src/repositories/prisma/user.ts
 var UserPrismaRepository = class {
@@ -147,9 +108,8 @@ var IncorrectCredentialsError = class extends Error {
 // src/services/user-service.ts
 var import_jsonwebtoken = require("jsonwebtoken");
 var UserService = class {
-  constructor(repository, generateRefreshToken2) {
+  constructor(repository) {
     this.repository = repository;
-    this.generateRefreshToken = generateRefreshToken2;
   }
   register(_0) {
     return __async(this, arguments, function* ({ email, password, name }) {
@@ -197,13 +157,11 @@ var UserService = class {
         throw new IncorrectCredentialsError();
       }
       const token = (0, import_jsonwebtoken.sign)({ id: hasUser.id }, secret, {
-        expiresIn: "1h"
+        expiresIn: "1m"
       });
-      const { id } = yield this.generateRefreshToken.execute(hasUser.id);
       return {
         token,
-        user: hasUser.name,
-        refreshTokenId: id
+        user: hasUser.name
       };
     });
   }
@@ -261,14 +219,10 @@ var UserController = class {
     return __async(this, null, function* () {
       try {
         const { email, password } = request.body;
-        const { token, user, refreshTokenId } = yield this.service.login(
-          email,
-          password
-        );
+        const { token, user } = yield this.service.login(email, password);
         return response.send({
           message: `Ol\xE1 novamente, ${user}!`,
-          token,
-          refreshTokenId
+          token
         });
       } catch (error) {
         if (error instanceof NotFoundError) {
@@ -285,8 +239,7 @@ var UserController = class {
 
 // src/controllers/user/index.ts
 var userRepository = new UserPrismaRepository();
-var generateRefreshToken = new GenerateRefreshTokenProvider();
-var userService = new UserService(userRepository, generateRefreshToken);
+var userService = new UserService(userRepository);
 var userController = new UserController(userService);
 
 // src/middlewares/auth-middleware.ts
@@ -602,56 +555,22 @@ var routes_default2 = endpoint2;
 // src/routes/refresh-token/routes.ts
 var import_express3 = require("express");
 
-// src/repositories/prisma/refresh-token.ts
-var PrismaRefreshTokenRepository = class {
-  findById(refresh_token) {
-    return __async(this, null, function* () {
-      const refreshToken = yield prismaClient.refreshToken.findUnique({
-        where: { id: refresh_token }
-      });
-      return refreshToken;
-    });
-  }
-  deleteMany(user_id) {
-    return __async(this, null, function* () {
-      yield prismaClient.refreshToken.deleteMany({ where: { user_id } });
-    });
-  }
-};
-
 // src/services/refresh-token.ts
-var import_dayjs2 = __toESM(require("dayjs"));
 var import_jsonwebtoken3 = require("jsonwebtoken");
-var import_dotenv2 = require("dotenv");
-(0, import_dotenv2.config)();
+var import_dotenv = require("dotenv");
+(0, import_dotenv.config)();
 var RefreshTokenService = class {
-  constructor(refreshTokenRepository2) {
-    this.refreshTokenRepository = refreshTokenRepository2;
+  constructor() {
   }
-  execute(refresh_token) {
+  execute(old_token) {
     return __async(this, null, function* () {
       const secret = process.env.SECRET;
-      const refreshTokenCreated = yield this.refreshTokenRepository.findById(
-        refresh_token
-      );
-      if (!refreshTokenCreated) {
-        throw new UnauthorizedError("token inv\xE1lido.");
-      }
-      const token = (0, import_jsonwebtoken3.sign)({ id: refreshTokenCreated.user_id }, secret, {
-        expiresIn: "1h"
+      const decriptedOldToken = (0, import_jsonwebtoken3.decode)(old_token);
+      const { id } = decriptedOldToken;
+      const new_token = (0, import_jsonwebtoken3.sign)({ id }, secret, {
+        expiresIn: "1m"
       });
-      const isExpired = (0, import_dayjs2.default)().isAfter(import_dayjs2.default.unix(refreshTokenCreated.expiresIn));
-      if (isExpired) {
-        yield this.refreshTokenRepository.deleteMany(refreshTokenCreated.user_id);
-        const refreshToken = (0, import_jsonwebtoken3.sign)({ id: refreshTokenCreated.user_id }, secret, {
-          expiresIn: "1h"
-        });
-        return {
-          token,
-          refreshToken
-        };
-      }
-      return { token };
+      return { token: new_token };
     });
   }
 };
@@ -663,10 +582,10 @@ var RefreshTokenController = class {
   }
   execute(request, response) {
     return __async(this, null, function* () {
-      const { id } = request.params;
+      const { old_token } = request.params;
       try {
-        const { refreshToken, token } = yield this.refreshTokenUseCase.execute(id);
-        return response.status(200).send({ message: "Ok", code: 200, refreshToken, token });
+        const { token } = yield this.refreshTokenUseCase.execute(old_token);
+        return response.status(200).send({ message: "Ok", code: 200, token });
       } catch (error) {
         if (error instanceof UnauthorizedError) {
           return response.status(403).send({ message: error.message, code: 403 });
@@ -677,15 +596,17 @@ var RefreshTokenController = class {
 };
 
 // src/controllers/refresh-token/index.ts
-var refreshTokenRepository = new PrismaRefreshTokenRepository();
-var refreshTokenService = new RefreshTokenService(refreshTokenRepository);
+var refreshTokenService = new RefreshTokenService();
 var refreshTokeController = new RefreshTokenController(refreshTokenService);
 
 // src/routes/refresh-token/routes.ts
 var endpoint3 = (0, import_express3.Router)();
-endpoint3.get("/refresh-token/:id", (request, response) => {
-  return refreshTokeController.execute(request, response);
-});
+endpoint3.get(
+  "/refresh-token/:old_token",
+  (request, response) => {
+    return refreshTokeController.execute(request, response);
+  }
+);
 var routes_default3 = endpoint3;
 
 // src/routes.ts

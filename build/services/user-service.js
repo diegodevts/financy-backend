@@ -70,9 +70,8 @@ var IncorrectCredentialsError = class extends Error {
 // src/services/user-service.ts
 var import_jsonwebtoken = require("jsonwebtoken");
 var UserService = class {
-  constructor(repository, generateRefreshToken) {
+  constructor(repository) {
     this.repository = repository;
-    this.generateRefreshToken = generateRefreshToken;
   }
   register(_0) {
     return __async(this, arguments, function* ({ email, password, name }) {
@@ -120,13 +119,11 @@ var UserService = class {
         throw new IncorrectCredentialsError();
       }
       const token = (0, import_jsonwebtoken.sign)({ id: hasUser.id }, secret, {
-        expiresIn: "1h"
+        expiresIn: "1m"
       });
-      const { id } = yield this.generateRefreshToken.execute(hasUser.id);
       return {
         token,
-        user: hasUser.name,
-        refreshTokenId: id
+        user: hasUser.name
       };
     });
   }

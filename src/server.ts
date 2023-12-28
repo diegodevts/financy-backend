@@ -7,7 +7,6 @@ import { sign } from 'jsonwebtoken'
 import { Auth } from './middlewares/auth-middleware'
 import { compare } from 'bcryptjs'
 import routes from './routes'
-import { keepAlive } from './jobs/keep-alive'
 
 const app = express()
 const PORT = process.env.PORT ?? 3232
@@ -30,8 +29,6 @@ app.use(routes)
 app.get('/', (request: Request, response: Response) => {
   return response.send({ message: 'Welcome to financy backend. V1.0' })
 })
-
-keepAlive()
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} `)

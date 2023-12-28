@@ -57,15 +57,11 @@ export class UserController {
   async login(request: Request, response: Response) {
     try {
       const { email, password } = request.body
-      const { token, user, refreshTokenId } = await this.service.login(
-        email,
-        password
-      )
+      const { token, user } = await this.service.login(email, password)
 
       return response.send({
         message: `Olá novamente, ${user}!`,
-        token,
-        refreshTokenId
+        token
       })
     } catch (error) {
       if (error instanceof NotFoundError) {

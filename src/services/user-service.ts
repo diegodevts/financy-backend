@@ -5,12 +5,8 @@ import { UserAlreadyExistsError } from '../errors/user-already-exists'
 import { NotFoundError } from '../errors/not-found'
 import { IncorrectCredentialsError } from '../errors/incorrect-credentials'
 import { sign } from 'jsonwebtoken'
-import { GenerateRefreshTokenProvider } from '../providers/generate-refresh-token'
 export class UserService {
-  constructor(
-    private repository: UserRepository,
-    private generateRefreshToken: GenerateRefreshTokenProvider
-  ) {}
+  constructor(private repository: UserRepository) {}
 
   async register({ email, password, name }: Prisma.UserCreateInput) {
     const password_hash = await hash(password, 6)
@@ -68,14 +64,12 @@ export class UserService {
     }
 
     const token = sign({ id: hasUser.id }, secret, {
-      expiresIn: '1h'
+      expiresIn: '1m'
     })
-    const { id } = await this.generateRefreshToken.execute(hasUser.id)
 
     return {
       token,
-      user: hasUser.name,
-      refreshTokenId: id
+      user: hasUser.name
     }
   }
 

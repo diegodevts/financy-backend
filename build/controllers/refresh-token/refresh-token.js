@@ -59,10 +59,10 @@ var RefreshTokenController = class {
   }
   execute(request, response) {
     return __async(this, null, function* () {
-      const { id } = request.params;
+      const { old_token } = request.params;
       try {
-        const { refreshToken, token } = yield this.refreshTokenUseCase.execute(id);
-        return response.status(200).send({ message: "Ok", code: 200, refreshToken, token });
+        const { token } = yield this.refreshTokenUseCase.execute(old_token);
+        return response.status(200).send({ message: "Ok", code: 200, token });
       } catch (error) {
         if (error instanceof UnauthorizedError) {
           return response.status(403).send({ message: error.message, code: 403 });
