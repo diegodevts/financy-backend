@@ -14,7 +14,7 @@ export class RefreshTokenService {
     const { id } = decriptedOldToken as Token
 
     const new_token = sign({ id }, secret, {
-      expiresIn: '1m'
+      expiresIn: '1h'
     })
 
     return { token: new_token }
