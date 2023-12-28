@@ -4,7 +4,7 @@ export const keepAlive = () => {
   new CronJob(
     '*/10 * * * *',
     async () => {
-      console.log('Reconnected')
+      await fetch('https://financy-backend.onrender.com/')
     },
     null,
     true,

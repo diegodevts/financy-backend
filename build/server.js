@@ -696,7 +696,7 @@ var keepAlive = () => {
   new import_cron.CronJob(
     "*/10 * * * *",
     () => __async(void 0, null, function* () {
-      console.log("Reconnected");
+      yield fetch("https://financy-backend.onrender.com/");
     }),
     null,
     true,
@@ -718,6 +718,9 @@ app.use((request, response, next) => {
   next();
 });
 app.use(routes_default4);
+app.get("/", (request, response) => {
+  return response.send({ message: "Welcome to financy backend. V1.0" });
+});
 keepAlive();
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} `);

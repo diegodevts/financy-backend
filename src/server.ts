@@ -27,6 +27,10 @@ app.use((request: Request, response: Response, next: NextFunction) => {
 
 app.use(routes)
 
+app.get('/', (request: Request, response: Response) => {
+  return response.send({ message: 'Welcome to financy backend. V1.0' })
+})
+
 keepAlive()
 
 app.listen(PORT, () => {

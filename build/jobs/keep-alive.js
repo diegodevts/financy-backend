@@ -48,7 +48,7 @@ var keepAlive = () => {
   new import_cron.CronJob(
     "*/10 * * * *",
     () => __async(void 0, null, function* () {
-      console.log("Reconnected");
+      yield fetch("https://financy-backend.onrender.com/");
     }),
     null,
     true,
