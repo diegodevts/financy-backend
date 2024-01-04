@@ -34,3 +34,20 @@ model Expenses {
 
   @@map("expenses")
 }
+
+model Market {
+  id          String    @id @unique @default(uuid())
+  name        String
+  description String?
+  latitude    Float
+  longitude   Float
+  products    Product[]
+}
+
+model Product {
+  id        Int    @id @default(autoincrement())
+  name      String
+  price     Float
+  market    Market @relation(fields: [market_id], references: [id])
+  market_id String
+}
