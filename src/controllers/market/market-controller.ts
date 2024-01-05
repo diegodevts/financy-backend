@@ -9,6 +9,8 @@ export class MarketController {
   async add(request: Request, response: Response) {
     try {
       const { name, description, latitude, longitude } = request.body
+
+      console.log(request.body)
       const { market } = await this.service.add({
         name,
         description,
