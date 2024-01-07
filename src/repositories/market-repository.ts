@@ -2,6 +2,7 @@ import { Prisma, Market } from '@prisma/client'
 
 export interface MarketRepository {
   add(data: Prisma.MarketUncheckedCreateInput): Promise<Market>
+  addMany(data: Prisma.MarketUncheckedCreateInput[]): Promise<boolean>
   find(id: string): Promise<Market | null>
   findMany(): Promise<Market[]>
   update(

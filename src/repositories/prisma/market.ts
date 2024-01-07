@@ -11,6 +11,16 @@ export class MarketPrismaRepository implements MarketRepository {
     return market
   }
 
+  async addMany(data: Prisma.MarketUncheckedCreateInput[]): Promise<boolean> {
+    const market = await prismaClient.market.createMany({ data })
+
+    if (market) {
+      return true
+    }
+
+    return false
+  }
+
   async findMany(): Promise<Market[]> {
     const markets = await prismaClient.market.findMany()
 

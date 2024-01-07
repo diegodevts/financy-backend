@@ -10,6 +10,14 @@ endpoint.post('/add', auth.execute, (request: Request, response: Response) => {
   return marketController.add(request, response)
 })
 
+endpoint.post(
+  '/add/many',
+  auth.execute,
+  (request: Request, response: Response) => {
+    return marketController.addMany(request, response)
+  }
+)
+
 endpoint.get('/all', auth.execute, (request: Request, response: Response) => {
   return marketController.findMany(request, response)
 })

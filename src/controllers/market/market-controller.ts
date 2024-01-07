@@ -10,7 +10,6 @@ export class MarketController {
     try {
       const { name, description, latitude, longitude } = request.body
 
-      console.log(request.body)
       const { market } = await this.service.add({
         name,
         description,
@@ -22,7 +21,22 @@ export class MarketController {
         .status(201)
         .send({ message: 'Mercado adicionado com sucesso!', market })
     } catch (error) {
-      console.log(error)
+      return response.status(500).send({ message: 'Internal server error' })
+    }
+  }
+
+  async addMany(request: Request, response: Response) {
+    try {
+      const data = request.body
+      const hasMarketsCreated = await this.service.addMany(data)
+
+      return response
+        .status(201)
+        .send({
+          message: 'Mercados adicionados com sucesso!',
+          hasMarketsCreated
+        })
+    } catch (error) {
       return response.status(500).send({ message: 'Internal server error' })
     }
   }
