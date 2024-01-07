@@ -37,7 +37,7 @@ model Expenses {
 
 model Market {
   id          String    @id @unique @default(uuid())
-  name        String
+  name        String    @unique
   description String?
   latitude    Float
   longitude   Float
