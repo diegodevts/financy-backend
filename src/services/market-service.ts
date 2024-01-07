@@ -13,7 +13,8 @@ export class MarketService {
   }
 
   async addMany(data: Prisma.MarketUncheckedCreateInput[]) {
-    const markets = await this.repository.addMany(data)
+    const markets = await this.repository.findMany() //coloca no redis
+    const marketsCreated = await this.repository.addMany(data)
 
     return markets
   }
