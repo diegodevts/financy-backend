@@ -22,6 +22,14 @@ endpoint.get('/all', auth.execute, (request: Request, response: Response) => {
   return marketController.findMany(request, response)
 })
 
+endpoint.get(
+  '/location',
+  auth.execute,
+  (request: Request, response: Response) => {
+    return marketController.findByLocation(request, response)
+  }
+)
+
 endpoint.put(
   '/update/:id',
   auth.execute,

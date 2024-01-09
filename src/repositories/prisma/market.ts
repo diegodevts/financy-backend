@@ -54,4 +54,15 @@ export class MarketPrismaRepository implements MarketRepository {
 
     return market
   }
+
+  async findByLocation(
+    latitude: number,
+    longitude: number
+  ): Promise<Market | null> {
+    const marketFounded = await prismaClient.market.findFirst({
+      where: { latitude, longitude }
+    })
+
+    return marketFounded
+  }
 }

@@ -13,10 +13,31 @@ export class MarketService {
   }
 
   async addMany(data: Prisma.MarketUncheckedCreateInput[]) {
-    const markets = await this.repository.findMany() //coloca no redis
-    const marketsCreated = await this.repository.addMany(data)
+    const allMarkets = await this.repository.findMany() //colocar no redis
 
-    return markets
+    if (allMarkets.length == 0) {
+      const marketsCreated = await this.repository.addMany(data)
+
+      return marketsCreated
+    }
+
+    //se houver mercado com nome repetido, mas a localização seja diferente, retorne ele
+    //se houver mercado com nome diferente e localização diferente, retorne ele
+    const filteredRepeatedMarkets = data.filter(
+      (newMarket) =>
+        !allMarkets.some(
+          (market) =>
+            market.name === newMarket.name &&
+            market.latitude === newMarket.latitude &&
+            market.longitude === newMarket.longitude
+        )
+    )
+
+    const marketsCreated = await this.repository.addMany(
+      filteredRepeatedMarkets
+    )
+
+    return marketsCreated
   }
 
   async findMany() {
@@ -29,5 +50,11 @@ export class MarketService {
     const updatedMarket = await this.repository.update(data, id)
 
     return updatedMarket
+  }
+
+  async findByLocation(latitude: number, longitude: number) {
+    const market = await this.repository.findByLocation(latitude, longitude)
+
+    return market
   }
 }

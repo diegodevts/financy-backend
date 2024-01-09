@@ -28,14 +28,13 @@ export class MarketController {
   async addMany(request: Request, response: Response) {
     try {
       const data = request.body
+
       const hasMarketsCreated = await this.service.addMany(data)
 
-      return response
-        .status(201)
-        .send({
-          message: 'Mercados adicionados com sucesso!',
-          hasMarketsCreated
-        })
+      return response.status(201).send({
+        message: 'Mercados adicionados com sucesso!',
+        hasMarketsCreated
+      })
     } catch (error) {
       return response.status(500).send({ message: 'Internal server error' })
     }
@@ -46,6 +45,23 @@ export class MarketController {
       const markets = await this.service.findMany()
 
       return response.send({ markets })
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return response.status(401).send({ message: error.message })
+      }
+
+      return response
+        .status(500)
+        .send({ message: 'Internal server error', error })
+    }
+  }
+
+  async findByLocation(request: Request, response: Response) {
+    try {
+      const { latitude, longitude } = request.body
+      const market = await this.service.findByLocation(latitude, longitude)
+
+      return response.send({ market })
     } catch (error) {
       if (error instanceof NotFoundError) {
         return response.status(401).send({ message: error.message })
