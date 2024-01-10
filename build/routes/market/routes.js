@@ -255,8 +255,11 @@ var MarketController = class {
   findByLocation(request, response) {
     return __async(this, null, function* () {
       try {
-        const { latitude, longitude } = request.body;
-        const market = yield this.service.findByLocation(latitude, longitude);
+        const { latitude, longitude } = request.params;
+        const market = yield this.service.findByLocation(
+          Number(latitude),
+          Number(longitude)
+        );
         return response.send({ market });
       } catch (error) {
         if (error instanceof NotFoundError) {
@@ -305,7 +308,7 @@ endpoint.get("/all", auth.execute, (request, response) => {
   return marketController.findMany(request, response);
 });
 endpoint.get(
-  "/location",
+  "/location/:latitude/:longitude",
   auth.execute,
   (request, response) => {
     return marketController.findByLocation(request, response);

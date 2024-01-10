@@ -58,8 +58,12 @@ export class MarketController {
 
   async findByLocation(request: Request, response: Response) {
     try {
-      const { latitude, longitude } = request.body
-      const market = await this.service.findByLocation(latitude, longitude)
+      const { latitude, longitude } = request.params
+
+      const market = await this.service.findByLocation(
+        Number(latitude),
+        Number(longitude)
+      )
 
       return response.send({ market })
     } catch (error) {

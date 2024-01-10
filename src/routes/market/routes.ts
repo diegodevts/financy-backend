@@ -23,7 +23,7 @@ endpoint.get('/all', auth.execute, (request: Request, response: Response) => {
 })
 
 endpoint.get(
-  '/location',
+  '/location/:latitude/:longitude',
   auth.execute,
   (request: Request, response: Response) => {
     return marketController.findByLocation(request, response)
