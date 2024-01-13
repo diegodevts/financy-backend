@@ -9,7 +9,7 @@ endpoint.post('/register', (request: Request, response: Response) => {
   return userController.register(request, response)
 })
 
-endpoint.get('/', auth.execute, (request: Request, response: Response) => {
+endpoint.get('/:id', auth.execute, (request: Request, response: Response) => {
   return userController.find(request, response)
 })
 
