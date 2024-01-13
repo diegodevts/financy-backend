@@ -61,7 +61,8 @@ export class UserController {
 
       return response.send({
         message: `Olá novamente, ${user}!`,
-        token
+        token,
+        user
       })
     } catch (error) {
       if (error instanceof NotFoundError) {
