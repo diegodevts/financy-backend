@@ -26,9 +26,9 @@ export class UserController {
   async find(request: Request, response: Response) {
     try {
       const { id } = request.params
-      const user = await this.service.find(id)
+      const { name } = await this.service.find(id)
 
-      return response.send({ message: 'Ok!', user })
+      return response.send({ message: 'Ok!', name })
     } catch (error) {
       if (error instanceof NotFoundError) {
         return response.status(401).send({ message: error.message })

@@ -33,7 +33,7 @@ export class UserService {
       throw new NotFoundError('Usuário')
     }
 
-    return hasUser
+    return { name: hasUser.name }
   }
 
   async update(data: Partial<Prisma.UserUncheckedCreateInput>, id: string) {
