@@ -42,4 +42,19 @@ export class ProductController {
         .send({ message: 'Internal server error', error })
     }
   }
+
+  async addMany(request: Request, response: Response) {
+    try {
+      const data = request.body
+      const { market_id } = request.params
+
+      await this.service.addMany(data, market_id)
+
+      return response.status(201).send({
+        message: 'Produtos adicionados com sucesso!'
+      })
+    } catch (error) {
+      return response.status(500).send({ message: 'Internal server error' })
+    }
+  }
 }

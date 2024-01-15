@@ -9,6 +9,14 @@ endpoint.post('/add', auth.execute, (request: Request, response: Response) => {
   return productController.addOrUpdate(request, response)
 })
 
+endpoint.post(
+  '/add/many/:market_id',
+  auth.execute,
+  (request: Request, response: Response) => {
+    return productController.addMany(request, response)
+  }
+)
+
 endpoint.get(
   '/all/:market_id',
   auth.execute,

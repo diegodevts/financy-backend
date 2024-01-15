@@ -13,8 +13,12 @@ export class ProductService {
   }
 
   async findMany(market_id: string) {
-    const ProductRepositorys = await this.repository.findMany(market_id)
+    const products = await this.repository.findMany(market_id)
 
-    return ProductRepositorys
+    return products
+  }
+
+  async addMany(data: Prisma.ProductUncheckedCreateInput[], market_id: string) {
+    await this.repository.addMany(data, market_id)
   }
 }

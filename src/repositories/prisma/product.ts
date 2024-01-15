@@ -38,4 +38,11 @@ export class ProductPrismaRepository implements ProductRepository {
 
     return product
   }
+
+  async addMany(
+    data: Prisma.ProductUncheckedCreateInput[],
+    market_id: string
+  ): Promise<void> {
+    await prismaClient.product.createMany({ data: { ...data, market_id } })
+  }
 }
