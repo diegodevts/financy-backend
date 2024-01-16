@@ -76,6 +76,7 @@ var ExpenseController = class {
         });
         return response.status(201).send({ message: "Item adicionado com sucesso!", expense });
       } catch (error) {
+        console.log(error);
         return response.status(500).send({ message: "Internal server error" });
       }
     });

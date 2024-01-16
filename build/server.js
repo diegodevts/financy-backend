@@ -485,6 +485,7 @@ var ExpenseController = class {
         });
         return response.status(201).send({ message: "Item adicionado com sucesso!", expense });
       } catch (error) {
+        console.log(error);
         return response.status(500).send({ message: "Internal server error" });
       }
     });
@@ -865,7 +866,6 @@ var ProductService = class {
       const products = data.map(
         (product) => Object.assign(product, { market_id })
       );
-      console.log(products);
       yield this.repository.addMany(products);
     });
   }

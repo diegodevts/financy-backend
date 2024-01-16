@@ -125,7 +125,6 @@ var ProductService = class {
       const products = data.map(
         (product) => Object.assign(product, { market_id })
       );
-      console.log(products);
       yield this.repository.addMany(products);
     });
   }
