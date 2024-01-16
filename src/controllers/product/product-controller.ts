@@ -48,12 +48,14 @@ export class ProductController {
       const data = request.body
       const { market_id } = request.params
 
+      delete data.user_id
       await this.service.addMany(data, market_id)
 
       return response.status(201).send({
         message: 'Produtos adicionados com sucesso!'
       })
     } catch (error) {
+      console.log(error)
       return response.status(500).send({ message: 'Internal server error' })
     }
   }

@@ -88,8 +88,8 @@ var UserController = class {
     return __async(this, null, function* () {
       try {
         const { id } = request.params;
-        const user = yield this.service.find(id);
-        return response.send({ message: "Ok!", user });
+        const { name } = yield this.service.find(id);
+        return response.send({ message: "Ok!", name });
       } catch (error) {
         if (error instanceof NotFoundError) {
           return response.status(401).send({ message: error.message });
@@ -120,7 +120,8 @@ var UserController = class {
         const { token, user } = yield this.service.login(email, password);
         return response.send({
           message: `Ol\xE1 novamente, ${user}!`,
-          token
+          token,
+          user
         });
       } catch (error) {
         if (error instanceof NotFoundError) {

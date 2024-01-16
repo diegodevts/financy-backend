@@ -6,9 +6,6 @@ export interface ProductRepository {
   ): Promise<{ product: Product; hasProduct: Product | null }>
   find(id: number): Promise<Product | null>
   findMany(market_id: string): Promise<Product[]>
-  addMany(
-    data: Prisma.ProductUncheckedCreateInput[],
-    market_id: string
-  ): Promise<void>
+  addMany(data: Prisma.ProductUncheckedCreateInput[]): Promise<void>
   remove(id: number): Promise<void>
 }

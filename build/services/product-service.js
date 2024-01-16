@@ -55,8 +55,17 @@ var ProductService = class {
   }
   findMany(market_id) {
     return __async(this, null, function* () {
-      const ProductRepositorys = yield this.repository.findMany(market_id);
-      return ProductRepositorys;
+      const products = yield this.repository.findMany(market_id);
+      return products;
+    });
+  }
+  addMany(data, market_id) {
+    return __async(this, null, function* () {
+      const products = data.map(
+        (product) => Object.assign(product, { market_id })
+      );
+      console.log(products);
+      yield this.repository.addMany(products);
     });
   }
 };

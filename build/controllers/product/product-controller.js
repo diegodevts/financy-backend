@@ -89,6 +89,22 @@ var ProductController = class {
       }
     });
   }
+  addMany(request, response) {
+    return __async(this, null, function* () {
+      try {
+        const data = request.body;
+        const { market_id } = request.params;
+        delete data.user_id;
+        yield this.service.addMany(data, market_id);
+        return response.status(201).send({
+          message: "Produtos adicionados com sucesso!"
+        });
+      } catch (error) {
+        console.log(error);
+        return response.status(500).send({ message: "Internal server error" });
+      }
+    });
+  }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

@@ -146,7 +146,7 @@ var UserService = class {
       if (!hasUser) {
         throw new NotFoundError("Usu\xE1rio");
       }
-      return hasUser;
+      return { name: hasUser.name };
     });
   }
   update(data, id) {
@@ -204,8 +204,8 @@ var UserController = class {
     return __async(this, null, function* () {
       try {
         const { id } = request.params;
-        const user = yield this.service.find(id);
-        return response.send({ message: "Ok!", user });
+        const { name } = yield this.service.find(id);
+        return response.send({ message: "Ok!", name });
       } catch (error) {
         if (error instanceof NotFoundError) {
           return response.status(401).send({ message: error.message });
@@ -236,7 +236,8 @@ var UserController = class {
         const { token, user } = yield this.service.login(email, password);
         return response.send({
           message: `Ol\xE1 novamente, ${user}!`,
-          token
+          token,
+          user
         });
       } catch (error) {
         if (error instanceof NotFoundError) {
@@ -303,7 +304,7 @@ var auth = new Auth();
 endpoint.post("/register", (request, response) => {
   return userController.register(request, response);
 });
-endpoint.get("/", auth.execute, (request, response) => {
+endpoint.get("/:id", auth.execute, (request, response) => {
   return userController.find(request, response);
 });
 endpoint.put(
@@ -830,6 +831,11 @@ var ProductPrismaRepository = class {
       return product;
     });
   }
+  addMany(data) {
+    return __async(this, null, function* () {
+      yield prismaClient.product.createMany({ data });
+    });
+  }
 };
 
 // src/services/product-service.ts
@@ -845,8 +851,17 @@ var ProductService = class {
   }
   findMany(market_id) {
     return __async(this, null, function* () {
-      const ProductRepositorys = yield this.repository.findMany(market_id);
-      return ProductRepositorys;
+      const products = yield this.repository.findMany(market_id);
+      return products;
+    });
+  }
+  addMany(data, market_id) {
+    return __async(this, null, function* () {
+      const products = data.map(
+        (product) => Object.assign(product, { market_id })
+      );
+      console.log(products);
+      yield this.repository.addMany(products);
     });
   }
 };
@@ -888,6 +903,22 @@ var ProductController = class {
       }
     });
   }
+  addMany(request, response) {
+    return __async(this, null, function* () {
+      try {
+        const data = request.body;
+        const { market_id } = request.params;
+        delete data.user_id;
+        yield this.service.addMany(data, market_id);
+        return response.status(201).send({
+          message: "Produtos adicionados com sucesso!"
+        });
+      } catch (error) {
+        console.log(error);
+        return response.status(500).send({ message: "Internal server error" });
+      }
+    });
+  }
 };
 
 // src/controllers/product/index.ts
@@ -901,6 +932,13 @@ var auth4 = new Auth();
 endpoint4.post("/add", auth4.execute, (request, response) => {
   return productController.addOrUpdate(request, response);
 });
+endpoint4.post(
+  "/add/many/:market_id",
+  auth4.execute,
+  (request, response) => {
+    return productController.addMany(request, response);
+  }
+);
 endpoint4.get(
   "/all/:market_id",
   auth4.execute,

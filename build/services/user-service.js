@@ -94,7 +94,7 @@ var UserService = class {
       if (!hasUser) {
         throw new NotFoundError("Usu\xE1rio");
       }
-      return hasUser;
+      return { name: hasUser.name };
     });
   }
   update(data, id) {

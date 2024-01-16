@@ -96,6 +96,11 @@ var ProductPrismaRepository = class {
       return product;
     });
   }
+  addMany(data) {
+    return __async(this, null, function* () {
+      yield prismaClient.product.createMany({ data });
+    });
+  }
 };
 
 // src/services/product-service.ts
@@ -111,8 +116,17 @@ var ProductService = class {
   }
   findMany(market_id) {
     return __async(this, null, function* () {
-      const ProductRepositorys = yield this.repository.findMany(market_id);
-      return ProductRepositorys;
+      const products = yield this.repository.findMany(market_id);
+      return products;
+    });
+  }
+  addMany(data, market_id) {
+    return __async(this, null, function* () {
+      const products = data.map(
+        (product) => Object.assign(product, { market_id })
+      );
+      console.log(products);
+      yield this.repository.addMany(products);
     });
   }
 };
@@ -159,6 +173,22 @@ var ProductController = class {
           return response.status(401).send({ message: error.message });
         }
         return response.status(500).send({ message: "Internal server error", error });
+      }
+    });
+  }
+  addMany(request, response) {
+    return __async(this, null, function* () {
+      try {
+        const data = request.body;
+        const { market_id } = request.params;
+        delete data.user_id;
+        yield this.service.addMany(data, market_id);
+        return response.status(201).send({
+          message: "Produtos adicionados com sucesso!"
+        });
+      } catch (error) {
+        console.log(error);
+        return response.status(500).send({ message: "Internal server error" });
       }
     });
   }

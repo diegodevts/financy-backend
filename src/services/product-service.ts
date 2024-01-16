@@ -19,6 +19,10 @@ export class ProductService {
   }
 
   async addMany(data: Prisma.ProductUncheckedCreateInput[], market_id: string) {
-    await this.repository.addMany(data, market_id)
+    const products = data.map((product) =>
+      Object.assign(product, { market_id })
+    )
+
+    await this.repository.addMany(products)
   }
 }
