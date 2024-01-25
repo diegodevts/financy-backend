@@ -1,7 +1,9 @@
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
@@ -19,6 +21,7 @@ var __spreadValues = (a, b) => {
     }
   return a;
 };
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -1020,9 +1023,24 @@ routes.use("", routes_default5);
 var routes_default6 = routes;
 
 // src/server.ts
+var import_http = require("http");
+var import_socket = require("socket.io");
 var app = (0, import_express7.default)();
 var _a;
 var PORT = (_a = process.env.PORT) != null ? _a : 3232;
+var httpServer = (0, import_http.createServer)(app);
+var io = new import_socket.Server(httpServer, { cors: { origin: "*" } });
+io.on("connection", (socket) => {
+  socket.on("disconnect", () => {
+    console.log(socket.data.name, "desconectado");
+    io.emit("user-disconnected", socket.id);
+  });
+  socket.on("user", (message) => {
+    io.emit("users-positions", __spreadProps(__spreadValues({}, message), { id: socket.id }));
+    socket.data.name = message.name;
+    console.log(message.name, socket.id);
+  });
+});
 app.use(import_express7.default.json());
 app.use(import_express7.default.urlencoded({ extended: true }));
 app.use((request, response, next) => {
@@ -1036,6 +1054,6 @@ app.use(routes_default6);
 app.get("/", (request, response) => {
   return response.send({ message: "Welcome to financy backend. V1.0" });
 });
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT} `);
 });

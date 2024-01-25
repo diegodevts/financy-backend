@@ -1,15 +1,25 @@
 import express, { NextFunction, Request, Response } from 'express'
 import 'dotenv/config'
-import { prismaClient } from './database/prisma-client'
 import cors from 'cors'
-import { formatValue } from './util/format-value'
-import { sign } from 'jsonwebtoken'
-import { Auth } from './middlewares/auth-middleware'
-import { compare } from 'bcryptjs'
 import routes from './routes'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 
 const app = express()
 const PORT = process.env.PORT ?? 3232
+
+const httpServer = createServer(app)
+const io = new Server(httpServer, { cors: { origin: '*' } })
+
+io.on('connection', (socket) => {
+  socket.on('disconnect', () => {
+    io.emit('user-disconnected', socket.id)
+  })
+
+  socket.on('user', (message) => {
+    io.emit('users-positions', { ...message, id: socket.id })
+  })
+})
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -30,6 +40,6 @@ app.get('/', (request: Request, response: Response) => {
   return response.send({ message: 'Welcome to financy backend. V1.0' })
 })
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT} `)
 })
