@@ -20,7 +20,9 @@ io.on('connection', (socket) => {
     io.emit('users-positions', { ...message, id: socket.id })
   })
 
-  io.emit('my-user', socket.id)
+  socket.on('my-user-set', (user) => {
+    io.emit('my-user', { id: socket.id, name: user })
+  })
 })
 
 app.use(express.json())
