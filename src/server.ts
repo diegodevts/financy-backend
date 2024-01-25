@@ -19,6 +19,8 @@ io.on('connection', (socket) => {
   socket.on('user', (message) => {
     io.emit('users-positions', { ...message, id: socket.id })
   })
+
+  io.emit('my-user', socket.id)
 })
 
 app.use(express.json())
