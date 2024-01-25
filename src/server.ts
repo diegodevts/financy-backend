@@ -18,10 +18,7 @@ io.on('connection', (socket) => {
 
   socket.on('user', (message) => {
     io.emit('users-positions', { ...message, id: socket.id })
-  })
-
-  socket.on('my-user-set', (user) => {
-    io.emit('my-user', { id: socket.id, name: user })
+    io.emit('my-user', { id: socket.id, name: message.name })
   })
 })
 

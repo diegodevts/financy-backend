@@ -1032,13 +1032,11 @@ var httpServer = (0, import_http.createServer)(app);
 var io = new import_socket.Server(httpServer, { cors: { origin: "*" } });
 io.on("connection", (socket) => {
   socket.on("disconnect", () => {
-    console.log(socket.data.name, "desconectado");
     io.emit("user-disconnected", socket.id);
   });
   socket.on("user", (message) => {
     io.emit("users-positions", __spreadProps(__spreadValues({}, message), { id: socket.id }));
-    socket.data.name = message.name;
-    console.log(message.name, socket.id);
+    io.emit("my-user", { id: socket.id, name: message.name });
   });
 });
 app.use(import_express7.default.json());
