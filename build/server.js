@@ -1035,8 +1035,7 @@ io.on("connection", (socket) => {
     io.emit("user-disconnected", socket.id);
   });
   socket.on("user", (message) => {
-    io.emit("users-positions", __spreadProps(__spreadValues({}, message), { id: socket.id }));
-    io.emit("my-user", { id: socket.id, name: message.name });
+    socket.broadcast.emit("users-positions", __spreadProps(__spreadValues({}, message), { id: socket.id }));
   });
 });
 app.use(import_express7.default.json());
