@@ -80,10 +80,13 @@ export class ExpensePrismaRepository implements ExpenseRepository {
       throw new NotFoundError('Item')
     }
 
+    const formatDescription = description ? description : item.description
+
     const expense = await prismaClient.expenses.update({
       where: { user_id: user_id as string, id },
       data: {
-        description: description ? description : item.description,
+        description:
+          item.description == 'Salário' ? item.description : formatDescription,
         value: formatValue(value ? +value : 0, type ? +type : 0, item),
         type: type ? +type : item.type
       }
