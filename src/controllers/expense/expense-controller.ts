@@ -8,12 +8,13 @@ export class ExpenseController {
 
   async add(request: Request, response: Response) {
     try {
-      const { value, type, description, user_id } = request.body
+      const { value, type, description, user_id, date } = request.body
       const { expense } = await this.service.add({
         value: parseFloat(value),
         type,
         description,
-        user_id
+        user_id,
+        date
       })
 
       return response

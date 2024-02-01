@@ -9,8 +9,11 @@ export class ExpensePrismaRepository implements ExpenseRepository {
     type,
     user_id,
     description,
-    value
-  }: Prisma.ExpensesUncheckedCreateInput): Promise<Expenses> {
+    value,
+    date
+  }: Prisma.ExpensesUncheckedCreateInput & {
+    date: string
+  }): Promise<Expenses> {
     const currentMonth = new Date().getMonth()
     const hasSalary = await prismaClient.expenses.findMany({
       where: { user_id, type: 3 }
@@ -36,7 +39,8 @@ export class ExpensePrismaRepository implements ExpenseRepository {
         description: +type === 3 ? 'Salário' : description,
         value: type > 1 ? value : (value *= -1),
         type: +type,
-        user_id
+        user_id,
+        created_at: date ? date : undefined
       }
     })
 

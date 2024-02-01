@@ -1,7 +1,9 @@
 import { Prisma, Expenses } from '@prisma/client'
 
 export interface ExpenseRepository {
-  add(data: Prisma.ExpensesUncheckedCreateInput): Promise<Expenses>
+  add(
+    data: Prisma.ExpensesUncheckedCreateInput & { date: string }
+  ): Promise<Expenses>
   find(id: string): Promise<Expenses | null>
   findMany({
     user_id,

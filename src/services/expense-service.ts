@@ -5,7 +5,7 @@ import { NotFoundError } from '../errors/not-found'
 export class ExpenseService {
   constructor(private repository: ExpenseRepository) {}
 
-  async add(data: Prisma.ExpensesUncheckedCreateInput) {
+  async add(data: Prisma.ExpensesUncheckedCreateInput & { date: string }) {
     const expense = await this.repository.add(data)
 
     return { expense }
