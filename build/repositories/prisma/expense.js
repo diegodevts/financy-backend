@@ -88,8 +88,23 @@ var ExpensePrismaRepository = class {
       type,
       user_id,
       description,
-      value
+      value,
+      date
     }) {
+      const [day, month, year] = date ? date.split("/") : "";
+      const [hour, minute, second] = [
+        (/* @__PURE__ */ new Date()).getHours(),
+        (/* @__PURE__ */ new Date()).getMinutes(),
+        (/* @__PURE__ */ new Date()).getSeconds()
+      ];
+      const formattedDate = new Date(
+        +year,
+        +month - 1,
+        +day,
+        hour,
+        minute,
+        second
+      );
       const currentMonth = (/* @__PURE__ */ new Date()).getMonth();
       const hasSalary = yield prismaClient.expenses.findMany({
         where: { user_id, type: 3 }
@@ -111,7 +126,8 @@ var ExpensePrismaRepository = class {
           description: +type === 3 ? "Sal\xE1rio" : description,
           value: type > 1 ? value : value *= -1,
           type: +type,
-          user_id
+          user_id,
+          created_at: formattedDate.toString() != "Invalid Date" ? formattedDate : void 0
         }
       });
       return expense;
@@ -143,10 +159,11 @@ var ExpensePrismaRepository = class {
       if (!item) {
         throw new NotFoundError("Item");
       }
+      const formatDescription = description ? description : item.description;
       const expense = yield prismaClient.expenses.update({
         where: { user_id, id },
         data: {
-          description: description ? description : item.description,
+          description: item.description == "Sal\xE1rio" ? item.description : formatDescription,
           value: formatValue(value ? +value : 0, type ? +type : 0, item),
           type: type ? +type : item.type
         }

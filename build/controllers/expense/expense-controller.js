@@ -67,12 +67,13 @@ var ExpenseController = class {
   add(request, response) {
     return __async(this, null, function* () {
       try {
-        const { value, type, description, user_id } = request.body;
+        const { value, type, description, user_id, date } = request.body;
         const { expense } = yield this.service.add({
           value: parseFloat(value),
           type,
           description,
-          user_id
+          user_id,
+          date
         });
         return response.status(201).send({ message: "Item adicionado com sucesso!", expense });
       } catch (error) {

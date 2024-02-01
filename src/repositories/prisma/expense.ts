@@ -15,6 +15,7 @@ export class ExpensePrismaRepository implements ExpenseRepository {
     date: string
   }): Promise<Expenses> {
     const [day, month, year] = date ? date.split('/') : ''
+
     const [hour, minute, second] = [
       new Date().getHours(),
       new Date().getMinutes(),
