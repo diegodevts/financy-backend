@@ -15,7 +15,19 @@ export class ExpensePrismaRepository implements ExpenseRepository {
     date: string
   }): Promise<Expenses> {
     const [day, month, year] = date ? date.split('/') : ''
-    const formattedDate = new Date(+year, +month - 1, +day)
+    const [hour, minute, second] = [
+      new Date().getHours(),
+      new Date().getMinutes(),
+      new Date().getSeconds()
+    ]
+    const formattedDate = new Date(
+      +year,
+      +month - 1,
+      +day,
+      hour,
+      minute,
+      second
+    )
     const currentMonth = new Date().getMonth()
     const hasSalary = await prismaClient.expenses.findMany({
       where: { user_id, type: 3 }
