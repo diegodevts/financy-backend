@@ -14,6 +14,8 @@ export class ExpensePrismaRepository implements ExpenseRepository {
   }: Prisma.ExpensesUncheckedCreateInput & {
     date: string
   }): Promise<Expenses> {
+    const [day, month, year] = date ? date.split('/') : ''
+    const formattedDate = new Date(+year, +month - 1, +day)
     const currentMonth = new Date().getMonth()
     const hasSalary = await prismaClient.expenses.findMany({
       where: { user_id, type: 3 }
@@ -40,7 +42,8 @@ export class ExpensePrismaRepository implements ExpenseRepository {
         value: type > 1 ? value : (value *= -1),
         type: +type,
         user_id,
-        created_at: date ? date : undefined
+        created_at:
+          formattedDate.toString() != 'Invalid Date' ? formattedDate : undefined
       }
     })
 
