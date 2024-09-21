@@ -14,21 +14,15 @@ export class ExpensePrismaRepository implements ExpenseRepository {
   }: Prisma.ExpensesUncheckedCreateInput & {
     date: string
   }): Promise<Expenses> {
-    const [day, month, year] = date ? date.split('/') : ''
+    let [day, month, year] = date ? date.split('/') : ''
 
+    month = `${+month - 1}`
     const [hour, minute, second] = [
       new Date().getHours(),
       new Date().getMinutes(),
       new Date().getSeconds()
     ]
-    const formattedDate = new Date(
-      +year,
-      +month - 1,
-      +day,
-      hour,
-      minute,
-      second
-    )
+    const formattedDate = new Date(+year, +month, +day, hour, minute, second)
     const currentMonth = new Date().getMonth()
     const hasSalary = await prismaClient.expenses.findMany({
       where: { user_id, type: 3 }
@@ -38,7 +32,7 @@ export class ExpensePrismaRepository implements ExpenseRepository {
       ({ created_at }) => created_at.getMonth() == currentMonth
     )
 
-    if (currentMonthSalary && +type == 3) {
+    if (currentMonthSalary && +type == 3 && +month == currentMonth) {
       const expense = await prismaClient.expenses.update({
         where: { id: currentMonthSalary.id },
         data: {
